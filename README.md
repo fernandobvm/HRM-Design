@@ -1,1 +1,1 @@
-# Hybird Rocket Motor Design
+# Hybrid Rocket Motor Design
