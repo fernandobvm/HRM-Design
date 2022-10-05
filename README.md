@@ -1,1 +1,1 @@
-# Hybird Rocket Moto Design
+# Hybird Rocket Motor Design
