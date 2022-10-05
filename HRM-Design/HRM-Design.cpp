@@ -8,22 +8,22 @@ using namespace std;
 class Propellant {
 protected:
     string fuel;
-    float fuel_density;
+    double fuel_density;
     string oxidizer;
-    float oxidizer_density;
-    float a;
-    float n;
-    float A;
-    float B;
-    float C;
+    double oxidizer_density;
+    double a;
+    double n;
+    double A;
+    double B;
+    double C;
 public:
     Propellant();
     ~Propellant();
 
-    void setPropellant(string _fuel, float _fuel_density, string _oxidizer, float _oxidizer_density, float _a, float _n, float _A, float _B, float _C);
+    void setPropellant(string _fuel, double _fuel_density, string _oxidizer, double _oxidizer_density, double _a, double _n, double _A, double _B, double _C);
     void readPropellant();
 
-    float calculatePressure(float _temperature);
+    double calculatePressure(double _temperature);
 
 };
 
@@ -31,7 +31,7 @@ Propellant::Propellant() {}
 
 Propellant::~Propellant() {}
 
-void Propellant::setPropellant(string _fuel, float _fuel_density, string _oxidizer, float _oxidizer_density, float _a, float _n, float _A, float _B, float _C) {
+void Propellant::setPropellant(string _fuel, double _fuel_density, string _oxidizer, double _oxidizer_density, double _a, double _n, double _A, double _B, double _C) {
     fuel = _fuel;
     fuel_density = _fuel_density;
     oxidizer = _oxidizer;
@@ -45,11 +45,11 @@ void Propellant::setPropellant(string _fuel, float _fuel_density, string _oxidiz
 
 void Propellant::readPropellant() {
     string fuel;
-    float fuel_density;
+    double fuel_density;
     string oxidizer;
-    float oxidizer_density;
-    float a;
-    float n;
+    double oxidizer_density;
+    double a;
+    double n;
 
     cout << "Insira o combustivel:\n";
     cin >> fuel;
@@ -71,61 +71,68 @@ void Propellant::readPropellant() {
     Propellant::setPropellant(fuel, fuel_density, oxidizer, oxidizer_density, a, n, A, B, C);
 }
 
-float Propellant::calculatePressure(float _temperature) {
+double Propellant::calculatePressure(double _temperature) {
     return C * _temperature * _temperature + B * _temperature + A;
 }
 
 class Ambient {
-public:
-    float ambient_temperature;
+protected:
+    double ambient_temperature;
 
-//public:
+public:
     Ambient();
     ~Ambient();
 
-    void setAmbient(float _ambient_temperature);
+    void setTemperature(double _ambient_temperature);
+    double getTemperature();
 };
 
 Ambient::Ambient() {}
 Ambient::~Ambient() {}
 
-void Ambient::setAmbient(float _ambient_temperature) {
+void Ambient::setTemperature(double _ambient_temperature) {
     ambient_temperature = _ambient_temperature;
+}
+
+double Ambient::getTemperature() {
+    return ambient_temperature;
 }
 
 class Injector {
 protected:
     string type;
-    float discharge_coefficient;
+    double discharge_coefficient;
 public:
 
     Injector();
     ~Injector();
 
-    void setInjector(string _type, float _discharge_coefficient);
+    void setInjector(string _type, double _discharge_coefficient);
 };
 
 Injector::Injector() {}
 Injector::~Injector() {}
 
-void Injector::setInjector(string _type, float _discharge_coefficient) {
+void Injector::setInjector(string _type, double _discharge_coefficient) {
     type = _type;
     discharge_coefficient = -discharge_coefficient;
 }
 
 class Motor {
 protected:
-    float thrust;
-    float chamber_pressure;
-    float of;
-    float cf;
-    float c_star;
-    float area_ratio;
-    float Isp;
-    float burning_time;
-    float n_port;
-    float initial_port_diameter;
-    float tank_pressure;
+    double thrust;
+    double chamber_pressure;
+    double of;
+    double cf;
+    double c_star;
+    double ef_c_star;
+    double exp_c_star;
+    double area_ratio;
+    double Isp;
+    double burning_time;
+    double n_port;
+    double initial_port_diameter;
+    double tank_pressure;
     Ambient ambient;
     Propellant propellant;
     Injector injector;
@@ -134,18 +141,20 @@ public:
     Motor();
     ~Motor();
 
-    void setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector);
+    void setParameters(double _thrust, double _chamber_pressure, double _of, double _cf, double _c_star, double _ef_c_star, double _area_ratio, double _Isp, double _burning_time, double _n_port, double _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector);
 };
 
 Motor::Motor() {}
 Motor::~Motor() {}
 
-void Motor::setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector) {
+void Motor::setParameters(double _thrust, double _chamber_pressure, double _of, double _cf, double _c_star, double _ef_c_star, double _area_ratio, double _Isp, double _burning_time, double _n_port, double _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector) {
     thrust = _thrust;
     chamber_pressure = _chamber_pressure;
     of = _of;
     cf = _cf;
     c_star = _c_star;
+    ef_c_star = _ef_c_star;
+    exp_c_star = _c_star * _ef_c_star;
     area_ratio = _area_ratio;
     Isp = _Isp;
     burning_time = _burning_time;
@@ -154,25 +163,27 @@ void Motor::setParameters(float _thrust, float _chamber_pressure, float _of, flo
     ambient = _ambient;
     propellant = _propellant;
     injector = _injector;
-    tank_pressure = _propellant.calculatePressure(_ambient.ambient_temperature);
+    tank_pressure = _propellant.calculatePressure(_ambient.getTemperature());
 }
 
 
 class Simulation {
 protected:
-    float timestep;
+    double timestep;
     Motor motor;
 public:
     Simulation();
     ~Simulation();
 
-    void setSimulation(float _timestep, Motor _motor);
+    void setSimulation(double _timestep, Motor _motor);
 };
 
 Simulation::Simulation() {}
-Simulation::~Simulation() {}
+Simulation::~Simulation() {
+    cout << "Classe Simulation destruida\n";
+}
 
-void Simulation::setSimulation(float _timestep, Motor _motor) {
+void Simulation::setSimulation(double _timestep, Motor _motor) {
     timestep = _timestep;
     motor = _motor;
 }
@@ -183,6 +194,15 @@ void Simulation::setSimulation(float _timestep, Motor _motor) {
 int main()
 {
     cout << "Hello World!\n";
+    Ambient ambiente;
+    Propellant propelente;
+    Injector injetor;
+    Motor motor;
+    Simulation simulacao;
     
-    
+    ambiente.setTemperature(25.0);
+    injetor.setInjector("Default", 0.4);
+    propelente.setPropellant("Paraffin", 920.0, "N2O", 720.0, 0.467, 0.543, 3039240, 79752.817, 773.269);
+    motor.setParameters(1500, 3000000, 5, 1.49, 1578.84102, 0.8, 5.0, 235.17805, 5.0, 1, 0.03, ambiente, propelente, injetor);
+    simulacao.setSimulation(0.01, motor);
 }
