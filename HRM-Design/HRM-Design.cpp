@@ -76,10 +76,10 @@ float Propellant::calculatePressure(float _temperature) {
 }
 
 class Ambient {
-protected:
+public:
     float ambient_temperature;
 
-public:
+//public:
     Ambient();
     ~Ambient();
 
@@ -93,6 +93,25 @@ void Ambient::setAmbient(float _ambient_temperature) {
     ambient_temperature = _ambient_temperature;
 }
 
+class Injector {
+protected:
+    string type;
+    float discharge_coefficient;
+public:
+
+    Injector();
+    ~Injector();
+
+    void setInjector(string _type, float _discharge_coefficient);
+};
+
+Injector::Injector() {}
+Injector::~Injector() {}
+
+void Injector::setInjector(string _type, float _discharge_coefficient) {
+    type = _type;
+    discharge_coefficient = -discharge_coefficient;
+}
 
 class Motor {
 protected:
@@ -106,20 +125,22 @@ protected:
     float burning_time;
     float n_port;
     float initial_port_diameter;
+    float tank_pressure;
     Ambient ambient;
     Propellant propellant;
+    Injector injector;
 
 public:
     Motor();
     ~Motor();
 
-    void setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant);
+    void setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector);
 };
 
 Motor::Motor() {}
 Motor::~Motor() {}
 
-void Motor::setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant) {
+void Motor::setParameters(float _thrust, float _chamber_pressure, float _of, float _cf, float _c_star, float _area_ratio, float _Isp, float _burning_time, float _n_port, float _initial_port_diameter, Ambient _ambient, Propellant _propellant, Injector _injector) {
     thrust = _thrust;
     chamber_pressure = _chamber_pressure;
     of = _of;
@@ -132,7 +153,31 @@ void Motor::setParameters(float _thrust, float _chamber_pressure, float _of, flo
     initial_port_diameter = _initial_port_diameter;
     ambient = _ambient;
     propellant = _propellant;
+    injector = _injector;
+    tank_pressure = _propellant.calculatePressure(_ambient.ambient_temperature);
 }
+
+
+class Simulation {
+protected:
+    float timestep;
+    Motor motor;
+public:
+    Simulation();
+    ~Simulation();
+
+    void setSimulation(float _timestep, Motor _motor);
+};
+
+Simulation::Simulation() {}
+Simulation::~Simulation() {}
+
+void Simulation::setSimulation(float _timestep, Motor _motor) {
+    timestep = _timestep;
+    motor = _motor;
+}
+
+
 
 
 int main()
